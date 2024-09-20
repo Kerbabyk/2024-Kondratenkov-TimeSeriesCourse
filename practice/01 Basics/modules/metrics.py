@@ -49,39 +49,16 @@ def norm_ED_distance(ts1: np.ndarray, ts2: np.ndarray) -> float:
 
 
 def euclidean_distance(x, y):
-    """
-    Вычисляет евклидово расстояние между двумя точками.
-    
-    Параметры:
-    x (float): Первая точка.
-    y (float): Вторая точка.
-    
-    Возвращает:
-    float: Евклидово расстояние между x и y.
-    """
-    return np.sqrt((x - y) ** 2)
+    return np.sqrt(np.sum((x - y) ** 2))
 
-def DTW_distance(ts1: np.ndarray, ts2: np.ndarray, r: float = 1) -> float:
-    """
-    Calculate DTW distance
-
-    Parameters
-    ----------
-    ts1: first time series
-    ts2: second time series
-    r: warping window size
-    
-    Returns
-    -------
-    dtw_dist: DTW distance between ts1 and ts2
-    """
+def DTW_distance(ts1, ts2):
     n = len(ts1)
     m = len(ts2)
     
-    # Создаем матрицу для хранения DTW расстояний
+    # Создаем матрицу для хранения расстояний
     dtw_matrix = np.zeros((n + 1, m + 1))
     
-    # Инициализируем первую строку и первый столбец матрицы бесконечностями
+    # Инициализируем первую строку и первый столбец бесконечностями
     for i in range(1, n + 1):
         dtw_matrix[i, 0] = np.inf
     for j in range(1, m + 1):
@@ -94,9 +71,9 @@ def DTW_distance(ts1: np.ndarray, ts2: np.ndarray, r: float = 1) -> float:
     for i in range(1, n + 1):
         for j in range(1, m + 1):
             cost = euclidean_distance(ts1[i-1], ts2[j-1])
-            dtw_matrix[i, j] = cost + min(dtw_matrix[i-1, j],
-                                         dtw_matrix[i, j-1],
-                                         dtw_matrix[i-1, j-1])
+            dtw_matrix[i, j] = cost + min(dtw_matrix[i-1, j],    # Insertion
+                                          dtw_matrix[i, j-1],    # Deletion
+                                          dtw_matrix[i-1, j-1])  # Match
     
     # Возвращаем DTW расстояние
     return dtw_matrix[n, m]
