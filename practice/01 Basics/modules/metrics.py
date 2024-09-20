@@ -1,5 +1,9 @@
 import numpy as np
 
+def random_walk(length: int, start: float = 0.0, step_std: float = 1.0) -> np.ndarray:
+    steps = np.random.normal(0, step_std, length)
+    walk = np.cumsum(steps) + start
+    return walk
 
 def ED_distance(ts1: np.ndarray, ts2: np.ndarray) -> float:
     """
