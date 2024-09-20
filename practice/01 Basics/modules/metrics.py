@@ -48,6 +48,19 @@ def norm_ED_distance(ts1: np.ndarray, ts2: np.ndarray) -> float:
     return norm_ed_dist
 
 
+def euclidean_distance(x, y):
+    """
+    Вычисляет евклидово расстояние между двумя точками.
+    
+    Параметры:
+    x (float): Первая точка.
+    y (float): Вторая точка.
+    
+    Возвращает:
+    float: Евклидово расстояние между x и y.
+    """
+    return np.sqrt((x - y) ** 2)
+
 def DTW_distance(ts1: np.ndarray, ts2: np.ndarray, r: float = 1) -> float:
     """
     Calculate DTW distance
