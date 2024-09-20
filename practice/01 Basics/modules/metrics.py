@@ -14,13 +14,17 @@ def ED_distance(ts1: np.ndarray, ts2: np.ndarray) -> float:
     ed_dist: euclidean distance between ts1 and ts2
     """
     
-    ed_dist = 0
-
     if len(ts1) != len(ts2):
-        raise ValueError("Time series must be of the same length")
+        raise ValueError("Временные ряды должны иметь одинаковую длину")
     
-    # Calculate the Euclidean Distance
-    ed_distance = np.sqrt(np.sum((ts1 - ts2) ** 2))
+    # Преобразуем входные данные в numpy массивы для удобства вычислений
+    ts1 = np.array(ts1)
+    ts2 = np.array(ts2)
+    
+    # Вычисляем евклидово расстояние
+    distance = np.sqrt(np.sum((ts1 - ts2) ** 2))
+    
+    return distance
 
 
 def norm_ED_distance(ts1: np.ndarray, ts2: np.ndarray) -> float:
