@@ -103,4 +103,4 @@ def DTW_distance(ts1: np.ndarray, ts2: np.ndarray, r: float = 1) -> float:
 
     # INSERT YOUR CODE
 
-    return dtw_dist
+    #return dtw_dist
