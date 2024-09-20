@@ -1,10 +1,5 @@
 import numpy as np
 
-def random_walk(length: int, start: float = 0.0, step_std: float = 1.0) -> np.ndarray:
-    steps = np.random.normal(0, step_std, length)
-    walk = np.cumsum(steps) + start
-    return walk
-
 def ED_distance(ts1: np.ndarray, ts2: np.ndarray) -> float:
     """
     Calculate the Euclidean distance
@@ -21,7 +16,11 @@ def ED_distance(ts1: np.ndarray, ts2: np.ndarray) -> float:
     
     ed_dist = 0
 
-    # INSERT YOUR CODE
+    if len(T1) != len(T2):
+        raise ValueError("Time series must be of the same length")
+    
+    # Calculate the Euclidean Distance
+    ed_distance = np.sqrt(np.sum((T1 - T2) ** 2))
 
     return ed_dist
 
