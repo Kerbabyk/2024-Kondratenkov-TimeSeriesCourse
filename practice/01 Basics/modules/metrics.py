@@ -16,13 +16,11 @@ def ED_distance(ts1: np.ndarray, ts2: np.ndarray) -> float:
     
     ed_dist = 0
 
-    if len(T1) != len(T2):
+    if len(ts1) != len(ts2):
         raise ValueError("Time series must be of the same length")
     
     # Calculate the Euclidean Distance
-    ed_distance = np.sqrt(np.sum((T1 - T2) ** 2))
-
-    return ed_dist
+    ed_distance = np.sqrt(np.sum((ts1 - ts2) ** 2))
 
 
 def norm_ED_distance(ts1: np.ndarray, ts2: np.ndarray) -> float:
