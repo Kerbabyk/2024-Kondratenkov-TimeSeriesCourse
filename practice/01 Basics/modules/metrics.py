@@ -62,8 +62,31 @@ def DTW_distance(ts1: np.ndarray, ts2: np.ndarray, r: float = 1) -> float:
     -------
     dtw_dist: DTW distance between ts1 and ts2
     """
-
-    dtw_dist = 0
+    n = len(ts1)
+    m = len(ts2)
+    
+    # Создаем матрицу для хранения DTW расстояний
+    dtw_matrix = np.zeros((n + 1, m + 1))
+    
+    # Инициализируем первую строку и первый столбец матрицы бесконечностями
+    for i in range(1, n + 1):
+        dtw_matrix[i, 0] = np.inf
+    for j in range(1, m + 1):
+        dtw_matrix[0, j] = np.inf
+    
+    # Устанавливаем начальное значение в (0,0) равным 0
+    dtw_matrix[0, 0] = 0
+    
+    # Заполняем матрицу DTW
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            cost = euclidean_distance(ts1[i-1], ts2[j-1])
+            dtw_matrix[i, j] = cost + min(dtw_matrix[i-1, j],
+                                         dtw_matrix[i, j-1],
+                                         dtw_matrix[i-1, j-1])
+    
+    # Возвращаем DTW расстояние
+    return dtw_matrix[n, m]
 
     # INSERT YOUR CODE
 
