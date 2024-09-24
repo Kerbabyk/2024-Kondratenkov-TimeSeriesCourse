@@ -1,145 +1,94 @@
 import numpy as np
-import pandas as pd
-from sklearn.cluster import AgglomerativeClustering
-from scipy.cluster.hierarchy import dendrogram
-from typing_extensions import Self
 
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+from modules.metrics import ED_distance, norm_ED_distance, DTW_distance
+from modules.utils import z_normalize
 
-class TimeSeriesHierarchicalClustering:
+class PairwiseDistance:
     """
-    Hierarchical Clustering of time series
+    Distance matrix between time series 
 
     Parameters
     ----------
-    n_clusters: number of clusters
-    method: linkage criterion.
-            Options: {single, complete, average, weighted}
+    metric: distance metric between two time series
+            Options: {euclidean, dtw}
+    is_normalize: normalize or not time series
     """
 
-    def __init__(self, n_clusters: int = 3, method: str = 'complete') -> None:
-        self.n_clusters: int = n_clusters
-        self.method: str = method
-        self.model: AgglomerativeClustering | None = None
-        self.linkage_matrix: np.ndarray | None = None
+    def __init__(self, metric: str = 'euclidean', is_normalize: bool = False) -> None:
 
-    def _create_linkage_matrix(self) -> np.ndarray:
-        """
-        Build the linkage matrix
+        self.metric: str = metric
+        self.is_normalize: bool = is_normalize
+    
+
+    @property
+    def distance_metric(self) -> str:
+        """Return the distance metric
 
         Returns
         -------
-        linkage matrix: linkage matrix
+            string with metric which is used to calculate distances between set of time series
         """
-        counts = np.zeros(self.model.children_.shape[0])
-        n_samples = len(self.model.labels_)
 
-        for i, merge in enumerate(self.model.children_):
-            current_count = 0
-            for child_idx in merge:
-                if child_idx < n_samples:
-                    current_count += 1  # leaf node
+        norm_str = ""
+        if (self.is_normalize):
+            norm_str = "normalized "
+        else:
+            norm_str = "non-normalized "
+
+        return norm_str + self.metric + " distance"
+
+
+    def _choose_distance(self):
+        """ Choose distance function for calculation of matrix
+        
+        Returns
+        -------
+        dist_func: function reference
+        """
+
+        dist_func = None
+
+        if self.metric == 'euclidean':
+            if self.is_normalize:
+                dist_func = norm_ED_distance
+            else:
+                dist_func = ED_distance
+        elif self.metric == 'dtw':
+            dist_func = DTW_distance
+        else:
+            raise ValueError(f"Unknown metric: {self.metric}")
+
+        return dist_func
+
+
+    def calculate(self, input_data: np.ndarray) -> np.ndarray:
+        """ Calculate distance matrix
+        
+        Parameters
+        ----------
+        input_data: time series set
+        
+        Returns
+        -------
+        matrix_values: distance matrix
+        """
+        
+        matrix_shape = (input_data.shape[0], input_data.shape[0])
+        matrix_values = np.zeros(shape=matrix_shape)
+        
+        dist_func = self._choose_distance()
+        
+        for i in range(input_data.shape[0]):
+            for j in range(i, input_data.shape[0]):
+                if self.is_normalize:
+                    series_i = z_normalize(input_data[i])
+                    series_j = z_normalize(input_data[j])
                 else:
-                    current_count += counts[child_idx - n_samples]
-            counts[i] = current_count
+                    series_i = input_data[i]
+                    series_j = input_data[j]
+                
+                distance = dist_func(series_i, series_j)
+                matrix_values[i, j] = distance
+                matrix_values[j, i] = distance
 
-        linkage_matrix = np.column_stack([self.model.children_, self.model.distances_, counts]).astype(float)
-
-        return linkage_matrix
-
-    def fit(self, distance_matrix: np.ndarray) -> Self:
-        """
-        Fit the agglomerative clustering model based on distance matrix
-
-        Parameters
-        ----------
-        distance_matrix: distance matrix between instances of dataset with shape (ts_number, ts_number)
-        
-        Returns
-        -------
-        self: the fitted model
-        """
-        self.model = AgglomerativeClustering(n_clusters=self.n_clusters, metric='precomputed', linkage=self.method)
-        self.model.fit(distance_matrix)
-        self.linkage_matrix = self._create_linkage_matrix()
-        return self
-
-    def fit_predict(self, distance_matrix: np.ndarray) -> np.ndarray:
-        """
-        Fit the agglomerative clustering model based on distance matrix and predict classes
-
-        Parameters
-        ----------
-        distance_matrix: distance matrix between instances of dataset with shape (ts_number, ts_number)
-        
-        Returns
-        -------
-        predicted labels 
-        """
-        self.fit(distance_matrix)
-        return self.model.labels_
-
-    def _draw_timeseries_allclust(self, dx: pd.DataFrame, labels: np.ndarray, leaves: list[int], gs: gridspec.GridSpec, ts_hspace: int) -> None:
-        """ 
-        Plot time series graphs beside dendrogram
-
-        Parameters
-        ----------
-        dx: timeseries data with column "y" indicating cluster number
-        labels: labels of dataset's instances
-        leaves: leave node names from scipy dendrogram
-        gs: gridspec configurations
-        ts_hspace: horizontal space in gridspec for plotting time series
-        """
-        prop_cycle = plt.rcParams['axes.prop_cycle']
-        colors = prop_cycle.by_key()['color']
-        margin = 7
-
-        max_cluster = len(leaves)
-        # flip leaves, as gridspec iterates from top down
-        leaves = leaves[::-1]
-
-        for cnt in range(len(leaves)):
-            plt.subplot(gs[cnt:cnt+1, max_cluster-ts_hspace:max_cluster])
-            plt.axis("off")
-
-            # get leafnode name, which corresponds to original data index
-            leafnode = leaves[cnt]
-            ts = dx[leafnode]
-            ts_len = ts.shape[0] - 1
-
-            label = int(labels[leafnode])
-            color_ts = colors[label]
-
-            plt.plot(ts, color=color_ts)
-            plt.text(ts_len+margin, 0, f'class = {label}')
-
-    def plot_dendrogram(self, df: pd.DataFrame, labels: np.ndarray, ts_hspace: int = 12, title: str = 'Dendrogram') -> None:
-        """ 
-        Draw agglomerative clustering dendrogram with timeseries graphs for all clusters.
-
-        Parameters
-        ----------
-        df: dataframe with each row being the time window of readings
-        labels: labels of dataset's instances
-        ts_hspace: horizontal space for timeseries graph to be plotted
-        title: title of dendrogram
-        """
-        max_cluster = len(self.linkage_matrix) + 1
-
-        plt.figure(figsize=(12, 9))
-
-        # define gridspec space
-        gs = gridspec.GridSpec(max_cluster, max_cluster)
-
-        # add dendrogram to gridspec
-        # add -1 to give timeseries graphs more space
-        plt.subplot(gs[:, 0 : max_cluster - ts_hspace - 1])
-        plt.xlabel("Distance")
-        plt.ylabel("Cluster")
-        plt.title(title, fontsize=16, weight='bold')
-
-        ddata = dendrogram(self.linkage_matrix, orientation="left", color_threshold=sorted(self.model.distances_)[-2], show_leaf_counts=True)
-
-        self._draw_timeseries_allclust(df, labels, ddata["leaves"], gs, ts_hspace)
+        return matrix_values
