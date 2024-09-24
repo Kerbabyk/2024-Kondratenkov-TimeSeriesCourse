@@ -60,7 +60,7 @@ class TimeSeriesHierarchicalClustering:
         -------
         self: the fitted model
         """
-        self.model = AgglomerativeClustering(n_clusters=self.n_clusters, affinity='precomputed', linkage=self.method)
+        self.model = AgglomerativeClustering(n_clusters=self.n_clusters, metric='precomputed', linkage=self.method)
         self.model.fit(distance_matrix)
         self.linkage_matrix = self._create_linkage_matrix()
         return self
