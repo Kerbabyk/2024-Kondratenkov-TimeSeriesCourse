@@ -7,7 +7,6 @@ from typing_extensions import Self
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
-
 class TimeSeriesHierarchicalClustering:
     """
     Hierarchical Clustering of time series
@@ -20,12 +19,10 @@ class TimeSeriesHierarchicalClustering:
     """
 
     def __init__(self, n_clusters: int = 3, method: str = 'complete') -> None:
-
         self.n_clusters: int = n_clusters
         self.method: str = method
         self.model: AgglomerativeClustering | None = None
         self.linkage_matrix: np.ndarray | None = None
-
 
     def _create_linkage_matrix(self) -> np.ndarray:
         """
@@ -35,7 +32,6 @@ class TimeSeriesHierarchicalClustering:
         -------
         linkage matrix: linkage matrix
         """
-
         counts = np.zeros(self.model.children_.shape[0])
         n_samples = len(self.model.labels_)
 
@@ -52,7 +48,6 @@ class TimeSeriesHierarchicalClustering:
 
         return linkage_matrix
 
-
     def fit(self, distance_matrix: np.ndarray) -> Self:
         """
         Fit the agglomerative clustering model based on distance matrix
@@ -65,11 +60,10 @@ class TimeSeriesHierarchicalClustering:
         -------
         self: the fitted model
         """
-
-       # INSERT YOUR CODE
-
+        self.model = AgglomerativeClustering(n_clusters=self.n_clusters, affinity='precomputed', linkage=self.method)
+        self.model.fit(distance_matrix)
+        self.linkage_matrix = self._create_linkage_matrix()
         return self
-
 
     def fit_predict(self, distance_matrix: np.ndarray) -> np.ndarray:
         """
@@ -81,13 +75,10 @@ class TimeSeriesHierarchicalClustering:
         
         Returns
         -------
-            predicted labels 
+        predicted labels 
         """
-
         self.fit(distance_matrix)
-
-        return self.labels_
-
+        return self.model.labels_
 
     def _draw_timeseries_allclust(self, dx: pd.DataFrame, labels: np.ndarray, leaves: list[int], gs: gridspec.GridSpec, ts_hspace: int) -> None:
         """ 
@@ -101,7 +92,6 @@ class TimeSeriesHierarchicalClustering:
         gs: gridspec configurations
         ts_hspace: horizontal space in gridspec for plotting time series
         """
-
         prop_cycle = plt.rcParams['axes.prop_cycle']
         colors = prop_cycle.by_key()['color']
         margin = 7
@@ -125,7 +115,6 @@ class TimeSeriesHierarchicalClustering:
             plt.plot(ts, color=color_ts)
             plt.text(ts_len+margin, 0, f'class = {label}')
 
-
     def plot_dendrogram(self, df: pd.DataFrame, labels: np.ndarray, ts_hspace: int = 12, title: str = 'Dendrogram') -> None:
         """ 
         Draw agglomerative clustering dendrogram with timeseries graphs for all clusters.
@@ -137,7 +126,6 @@ class TimeSeriesHierarchicalClustering:
         ts_hspace: horizontal space for timeseries graph to be plotted
         title: title of dendrogram
         """
-
         max_cluster = len(self.linkage_matrix) + 1
 
         plt.figure(figsize=(12, 9))
