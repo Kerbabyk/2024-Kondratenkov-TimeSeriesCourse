@@ -64,6 +64,11 @@ class PairwiseDistance:
                 series_j = z_normalize(input_data[j]) if self.is_normalize else input_data[j]
                 
                 distance = dist_func(series_i, series_j)
+                
+                # Проверка на конечное значение
+                if not np.isfinite(distance):
+                    raise ValueError(f"Infinite distance detected between series {i} and {j}")
+                
                 matrix_values[i, j] = distance
                 matrix_values[j, i] = distance
 
