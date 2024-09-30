@@ -41,31 +41,28 @@ def z_normalize(ts: np.ndarray) -> np.ndarray:
     return norm_ts
 
 
-def sliding_window(ts: np.ndarray, window: int, step: int = 1) -> np.ndarray:
+def sliding_window(ts, window, step):
     """
-    Extract subsequences from time series using sliding window
-
+    Разделение временного ряда на непересекающиеся подпоследовательности с помощью скользящего окна.
+    
     Parameters
     ----------
-    ts: time series
-    window: size of the sliding window
-    step: step of the sliding window
-
+    ts: временной ряд
+    window: длина подпоследовательности
+    step: шаг окна
+    
     Returns
     -------
-    subs_matrix: matrix of subsequences
+    subs_matrix: матрица подпоследовательностей
     """
+    num_subs = (ts.shape[0] - window) // step + 1
+    subs_matrix = np.empty((num_subs, window), dtype=ts.dtype)
     
-    n = ts.shape[0]
-    N = math.ceil((n-window+1)/step)
-
-    subs_matrix = np.zeros((N, window))
-
-    for i in range(N):
-        start_idx = i*step
+    for i in range(num_subs):
+        start_idx = i * step
         end_idx = start_idx + window
-        subs_matrix[i] = ts[start_idx:end_idx]
-
+        subs_matrix[i] = ts[start_idx:end_idx].flatten()  # Используем flatten() для приведения к одномерному массиву
+    
     return subs_matrix
 
 
