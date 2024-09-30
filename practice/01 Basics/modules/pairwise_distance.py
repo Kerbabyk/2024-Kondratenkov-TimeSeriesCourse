@@ -42,34 +42,38 @@ class PairwiseDistance:
         else:
             raise ValueError(f"Unknown metric: {self.metric}")
 
-    def calculate(self, input_data: np.ndarray) -> np.ndarray:
-        """ Calculate distance matrix
-        
-        Parameters
-        ----------
-        input_data: time series set
-        
-        Returns
-        -------
-        matrix_values: distance matrix
-        """
-        matrix_shape = (input_data.shape[0], input_data.shape[0])
-        matrix_values = np.zeros(shape=matrix_shape)
-        
-        dist_func = self._choose_distance()
-        
-        for i in range(input_data.shape[0]):
-            for j in range(i, input_data.shape[0]):
-                series_i = z_normalize(input_data[i]) if self.is_normalize else input_data[i]
-                series_j = z_normalize(input_data[j]) if self.is_normalize else input_data[j]
-                
-                distance = dist_func(series_i, series_j)
-                
-                # Проверка на конечное значение
-                if not np.isfinite(distance):
-                    raise ValueError(f"Infinite distance detected between series {i} and {j}")
-                
-                matrix_values[i, j] = distance
-                matrix_values[j, i] = distance
+def calculate(self, input_data: np.ndarray) -> np.ndarray:
+    """ Calculate distance matrix
+    
+    Parameters
+    ----------
+    input_data: time series set
+    
+    Returns
+    -------
+    matrix_values: distance matrix
+    """
+    matrix_shape = (input_data.shape[0], input_data.shape[0])
+    matrix_values = np.zeros(shape=matrix_shape)
+    
+    dist_func = self._choose_distance()
+    
+    for i in range(input_data.shape[0]):
+        for j in range(i, input_data.shape[0]):
+            series_i = z_normalize(input_data[i]) if self.is_normalize else input_data[i]
+            series_j = z_normalize(input_data[j]) if self.is_normalize else input_data[j]
+            
+            # Проверка на конечность значений
+            if not np.isfinite(series_i).all() or not np.isfinite(series_j).all():
+                raise ValueError(f"Infinite or NaN values detected in series {i} or {j}")
+            
+            distance = dist_func(series_i, series_j)
+            
+            # Проверка на конечное значение
+            if not np.isfinite(distance):
+                raise ValueError(f"Infinite distance detected between series {i} and {j}")
+            
+            matrix_values[i, j] = distance
+            matrix_values[j, i] = distance
 
-        return matrix_values
+    return matrix_values
