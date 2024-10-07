@@ -3,8 +3,9 @@ from modules.metrics import ED_distance, norm_ED_distance, DTW_distance
 from modules.utils import z_normalize
 
 class PairwiseDistance:
-    def __init__(self, metric='euclidean'):
+    def __init__(self, metric='euclidean', is_normalize=False):
         self.metric = metric
+        self.is_normalize = is_normalize
 
     def norm_ED_distance(self, x, y):
         """
@@ -25,12 +26,13 @@ class PairwiseDistance:
                     distance_matrix[i, j] = self.norm_ED_distance(sequences[i], sequences[j])
                     distance_matrix[j, i] = distance_matrix[i, j]
         else:
-            # Применяем z-нормализацию для всех временных рядов
-            normalized_sequences = [z_normalize(seq) for seq in sequences]
+            # Применяем z-нормализацию для всех временных рядов, если is_normalize=True
+            if self.is_normalize:
+                sequences = [z_normalize(seq) for seq in sequences]
             for i in range(n):
                 for j in range(i, n):
                     if self.metric == 'euclidean':
-                        distance_matrix[i, j] = np.linalg.norm(normalized_sequences[i] - normalized_sequences[j])
+                        distance_matrix[i, j] = np.linalg.norm(sequences[i] - sequences[j])
                     else:
                         raise ValueError(f"Unsupported metric: {self.metric}")
                     distance_matrix[j, i] = distance_matrix[i, j]
