@@ -1,6 +1,7 @@
 import numpy as np
 from modules.metrics import ED_distance, norm_ED_distance, DTW_distance
 from modules.utils import z_normalize
+from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 
 class PairwiseDistance:
     def __init__(self, metric='euclidean', is_normalize=False):
