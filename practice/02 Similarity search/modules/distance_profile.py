@@ -22,9 +22,15 @@ def brute_force(ts: np.ndarray, query: np.ndarray, is_normalize: bool = True) ->
     n = len(ts)
     m = len(query)
     N = n-m+1
+    distance_profile = np.zeros(n - m + 1)
+    
+    for i in range(n - m + 1):
+        subsequence = ts[i:i+m]
+        if is_normalize:
+            subsequence = (subsequence - np.mean(subsequence)) / np.std(subsequence)
+            query = (query - np.mean(query)) / np.std(query)
+        distance_profile[i] = np.linalg.norm(subsequence - query)
+    
+    return distance_profile
 
-    dist_profile = np.zeros(shape=(N,))
-
-    # INSERT YOUR CODE
-
-    return dist_profile
+distance_profile = brute_force(ts, query, is_normalize=True)
