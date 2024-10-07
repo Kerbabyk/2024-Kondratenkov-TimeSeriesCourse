@@ -16,6 +16,32 @@ class PairwiseDistance:
         """
         return np.linalg.norm(x - y) / np.sqrt(len(x))
 
+    def euclidean_distance(self, x, y):
+        """
+        Вычисляет евклидово расстояние между двумя точками.
+        """
+        return np.linalg.norm(x - y)
+
+    def dtw_distance(self, T1, T2):
+        """
+        Вычисляет DTW расстояние между двумя временными рядами T1 и T2.
+        """
+        n = len(T1)
+        m = len(T2)
+        
+        # Инициализация матрицы расстояний
+        dtw_matrix = np.full((n + 1, m + 1), np.inf)
+        dtw_matrix[0, 0] = 0
+        
+        # Заполнение матрицы расстояний
+        for i in range(1, n + 1):
+            for j in range(1, m + 1):
+                cost = (T1[i-1] - T2[j-1]) ** 2
+                dtw_matrix[i, j] = cost + min(dtw_matrix[i-1, j], dtw_matrix[i, j-1], dtw_matrix[i-1, j-1])
+        
+        # Возвращаем DTW расстояние
+        return np.sqrt(dtw_matrix[n, m])
+
     def compute_distance_matrix(self, sequences):
         """
         Вычисляет матрицу расстояний между всеми парами временных рядов.
@@ -28,17 +54,18 @@ class PairwiseDistance:
                 for j in range(i, n):
                     distance_matrix[i, j] = self.norm_ED_distance(sequences[i], sequences[j])
                     distance_matrix[j, i] = distance_matrix[i, j]
-        else:
-            # Применяем z-нормализацию для всех временных рядов, если is_normalize=True
-            if self.is_normalize:
-                sequences = [z_normalize(seq) for seq in sequences]
+        elif self.metric == 'euclidean':
             for i in range(n):
                 for j in range(i, n):
-                    if self.metric == 'euclidean':
-                        distance_matrix[i, j] = np.linalg.norm(sequences[i] - sequences[j])
-                    else:
-                        raise ValueError(f"Unsupported metric: {self.metric}")
+                    distance_matrix[i, j] = self.euclidean_distance(sequences[i], sequences[j])
                     distance_matrix[j, i] = distance_matrix[i, j]
+        elif self.metric == 'dtw':
+            for i in range(n):
+                for j in range(i, n):
+                    distance_matrix[i, j] = self.dtw_distance(sequences[i], sequences[j])
+                    distance_matrix[j, i] = distance_matrix[i, j]
+        else:
+            raise ValueError(f"Unsupported metric: {self.metric}")
 
         return distance_matrix
 
