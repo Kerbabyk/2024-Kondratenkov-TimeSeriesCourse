@@ -38,3 +38,26 @@ class PairwiseDistance:
                     distance_matrix[j, i] = distance_matrix[i, j]
 
         return distance_matrix
+
+class TimeSeriesHierarchicalClustering:
+    def __init__(self, n_clusters=3, method='ward'):
+        self.n_clusters = n_clusters
+        self.method = method
+        self.model = None
+
+    def fit(self, distance_matrix):
+        Z = linkage(distance_matrix, method=self.method)
+        self.model = Z
+        return Z
+
+    def plot_dendrogram(self, data, labels, title='Dendrogram'):
+        plt.figure(figsize=(10, 5))
+        dendrogram(self.model, labels=labels, leaf_rotation=90., leaf_font_size=8.)
+        plt.title(title)
+        plt.show()
+
+    def get_cluster_labels(self, distance_matrix, max_d):
+        return fcluster(self.model, max_d, criterion='distance')
+
+    def silhouette_score(self, distance_matrix, cluster_labels):
+        return silhouette_score(distance_matrix, cluster_labels, metric='precomputed')
