@@ -24,13 +24,11 @@ def brute_force(ts: np.ndarray, query: np.ndarray, is_normalize: bool = True) ->
     N = n-m+1
     distance_profile = np.zeros(n - m + 1)
     
+    if is_normalize:
+        ts = (ts - np.mean(ts)) / np.std(ts)
+        query = (query - np.mean(query)) / np.std(query)
+    
     for i in range(n - m + 1):
-        subsequence = ts[i:i+m]
-        if is_normalize:
-            subsequence = (subsequence - np.mean(subsequence)) / np.std(subsequence)
-            query = (query - np.mean(query)) / np.std(query)
-        distance_profile[i] = np.linalg.norm(subsequence - query)
+        distance_profile[i] = euclidean(ts[i:i+m], query)
     
     return distance_profile
-
-distance_profile = brute_force(ts, query, is_normalize=True)
