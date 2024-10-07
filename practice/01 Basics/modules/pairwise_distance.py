@@ -3,77 +3,36 @@ from modules.metrics import ED_distance, norm_ED_distance, DTW_distance
 from modules.utils import z_normalize
 
 class PairwiseDistance:
-    """
-    Distance matrix between time series 
+    def __init__(self, metric='euclidean'):
+        self.metric = metric
 
-    Parameters
-    ----------
-    metric: distance metric between two time series
-            Options: {euclidean, dtw}
-    is_normalize: normalize or not time series
-    """
-
-    def __init__(self, metric: str = 'euclidean', is_normalize: bool = False) -> None:
-        self.metric: str = metric
-        self.is_normalize: bool = is_normalize
-    
-    @property
-    def distance_metric(self) -> str:
-        """Return the distance metric
-
-        Returns
-        -------
-            string with metric which is used to calculate distances between set of time series
+    def norm_ED_distance(self, x, y):
         """
-        norm_str = "normalized " if self.is_normalize else "non-normalized "
-        return norm_str + self.metric + " distance"
-
-    def _choose_distance(self):
-        """ Choose distance function for calculation of matrix
-        
-        Returns
-        -------
-        dist_func: function reference
+        Вычисляет нормализованное евклидово расстояние между двумя временными рядами.
         """
-        if self.metric == 'euclidean':
-            return norm_ED_distance if self.is_normalize else ED_distance
-        elif self.metric == 'dtw':
-            return DTW_distance
+        return np.linalg.norm(x - y) / np.sqrt(len(x))
+
+    def compute_distance_matrix(self, sequences):
+        """
+        Вычисляет матрицу расстояний между всеми парами временных рядов.
+        """
+        n = len(sequences)
+        distance_matrix = np.zeros((n, n))
+
+        if self.metric == 'norm_euclidean':
+            for i in range(n):
+                for j in range(i, n):
+                    distance_matrix[i, j] = self.norm_ED_distance(sequences[i], sequences[j])
+                    distance_matrix[j, i] = distance_matrix[i, j]
         else:
-            raise ValueError(f"Unknown metric: {self.metric}")
+            # Применяем z-нормализацию для всех временных рядов
+            normalized_sequences = [z_normalize(seq) for seq in sequences]
+            for i in range(n):
+                for j in range(i, n):
+                    if self.metric == 'euclidean':
+                        distance_matrix[i, j] = np.linalg.norm(normalized_sequences[i] - normalized_sequences[j])
+                    else:
+                        raise ValueError(f"Unsupported metric: {self.metric}")
+                    distance_matrix[j, i] = distance_matrix[i, j]
 
-    def calculate(self, input_data: np.ndarray) -> np.ndarray:
-        """ Calculate distance matrix
-        
-        Parameters
-        ----------
-        input_data: time series set
-        
-        Returns
-        -------
-        matrix_values: distance matrix
-        """
-        matrix_shape = (input_data.shape[0], input_data.shape[0])
-        matrix_values = np.zeros(shape=matrix_shape)
-        
-        dist_func = self._choose_distance()
-        
-        for i in range(input_data.shape[0]):
-            for j in range(i, input_data.shape[0]):
-                series_i = z_normalize(input_data[i]) if self.is_normalize else input_data[i]
-                series_j = z_normalize(input_data[j]) if self.is_normalize else input_data[j]
-                
-                # Проверка на конечность значений
-                if not np.isfinite(series_i).all() or not np.isfinite(series_j).all():
-                    raise ValueError(f"Infinite or NaN values detected in series {i} or {j}")
-                
-                distance = dist_func(series_i, series_j)
-                
-                # Проверка на конечное значение
-                if not np.isfinite(distance):
-                    raise ValueError(f"Infinite distance detected between series {i} and {j}")
-                
-                matrix_values[i, j] = distance
-                matrix_values[j, i] = distance
-
-        return matrix_values
+        return distance_matrix
