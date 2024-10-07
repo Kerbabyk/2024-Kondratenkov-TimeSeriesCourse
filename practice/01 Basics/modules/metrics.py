@@ -63,6 +63,7 @@ def norm_ED_distance(ts1: np.ndarray, ts2: np.ndarray) -> float:
 
 def euclidean_distance(x, y):
     return np.sqrt(np.sum((x - y) ** 2))
+    
 
 def DTW_distance(T1, T2):
     """
@@ -72,9 +73,8 @@ def DTW_distance(T1, T2):
     m = len(T2)
     
     # Инициализация матрицы расстояний
-    dtw_matrix = np.zeros((n + 1, m + 1))
-    dtw_matrix[0, 1:] = np.inf
-    dtw_matrix[1:, 0] = np.inf
+    dtw_matrix = np.full((n + 1, m + 1), np.inf)
+    dtw_matrix[0, 0] = 0
     
     # Заполнение матрицы расстояний
     for i in range(1, n + 1):
@@ -83,7 +83,7 @@ def DTW_distance(T1, T2):
             dtw_matrix[i, j] = cost + min(dtw_matrix[i-1, j], dtw_matrix[i, j-1], dtw_matrix[i-1, j-1])
     
     # Возвращаем DTW расстояние
-    return dtw_matrix[n, m]
+    return np.sqrt(dtw_matrix[n, m])
 
     # INSERT YOUR CODE
 
