@@ -64,29 +64,22 @@ def norm_ED_distance(ts1: np.ndarray, ts2: np.ndarray) -> float:
 def euclidean_distance(x, y):
     return np.sqrt(np.sum((x - y) ** 2))
 
-def DTW_distance(ts1, ts2):
-    n = len(ts1)
-    m = len(ts2)
+def DTW_distance(T1, T2):
+    """
+    Вычисляет DTW расстояние между двумя временными рядами T1 и T2.
+    """
+    n = len(T1)
+    m = len(T2)
     
-    # Создаем матрицу для хранения расстояний
-    dtw_matrix = np.zeros((n + 1, m + 1))
-    
-    # Инициализируем первую строку и первый столбец бесконечностями
-    for i in range(1, n + 1):
-        dtw_matrix[i, 0] = np.inf
-    for j in range(1, m + 1):
-        dtw_matrix[0, j] = np.inf
-    
-    # Устанавливаем начальное значение в (0,0) равным 0
+    # Инициализация матрицы расстояний
+    dtw_matrix = np.full((n + 1, m + 1), np.inf)
     dtw_matrix[0, 0] = 0
     
-    # Заполняем матрицу DTW
+    # Заполнение матрицы расстояний
     for i in range(1, n + 1):
         for j in range(1, m + 1):
-            cost = euclidean_distance(ts1[i-1], ts2[j-1])
-            dtw_matrix[i, j] = cost + min(dtw_matrix[i-1, j],    # Insertion
-                                          dtw_matrix[i, j-1],    # Deletion
-                                          dtw_matrix[i-1, j-1])  # Match
+            cost = euclidean_distance(T1[i-1], T2[j-1])
+            dtw_matrix[i, j] = cost + min(dtw_matrix[i-1, j], dtw_matrix[i, j-1], dtw_matrix[i-1, j-1])
     
     # Возвращаем DTW расстояние
     return dtw_matrix[n, m]
