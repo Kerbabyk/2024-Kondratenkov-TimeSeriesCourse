@@ -72,8 +72,9 @@ def DTW_distance(T1, T2):
     m = len(T2)
     
     # Инициализация матрицы расстояний
-    dtw_matrix = np.full((n + 1, m + 1), np.inf)
-    dtw_matrix[0, 0] = 0
+    dtw_matrix = np.zeros((n + 1, m + 1))
+    dtw_matrix[0, 1:] = np.inf
+    dtw_matrix[1:, 0] = np.inf
     
     # Заполнение матрицы расстояний
     for i in range(1, n + 1):
