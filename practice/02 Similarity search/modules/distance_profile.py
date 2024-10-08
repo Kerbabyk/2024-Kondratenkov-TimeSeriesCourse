@@ -25,10 +25,10 @@ def brute_force(ts: np.ndarray, query: np.ndarray, is_normalize: bool = True) ->
     distance_profile = np.zeros(n - m + 1)
     
     if is_normalize:
-        ts = (ts - np.mean(ts)) / np.std(ts)
-        query = (query - np.mean(query)) / np.std(query)
+        ts = z_normalize(ts)
+        query = z_normalize(query)
     
-    for i in range(n - m + 1):
-        distance_profile[i] = euclidean(ts[i:i+m], query)
+    for i in range(N):
+        distance_profile[i] = norm_ED_distance(ts[i:i+m], query)
     
     return distance_profile
