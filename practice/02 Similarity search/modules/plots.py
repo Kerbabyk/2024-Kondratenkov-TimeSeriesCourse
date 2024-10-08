@@ -187,37 +187,55 @@ def pie_chart(labels: np.ndarray, values: np.ndarray, plot_title='Pie chart') ->
     fig.show(renderer="colab")
 
 
-def plot_bestmatch_results(ts, query, bestmatch_results):
+def plot_bestmatch_results(ts: np.ndarray, query: np.ndarray, bestmatch_results: dict) -> None:
     """
-    Plot the time series, query, and the best match subsequences found.
+    Visualize the time series, query, and the best match subsequences found.
 
     Parameters
     ----------
-    ts: np.ndarray
-        The time series data.
-    query: np.ndarray
-        The query subsequence.
+    ts: time series
+    query: query
     bestmatch_results: dict
         The results from the topK_match function containing indices and distances.
     """
-    plt.figure(figsize=(14, 6))
-    
-    # Plot the time series
-    plt.plot(ts, label='Time Series', color='blue')
-    
-    # Plot the query subsequence
-    plt.plot(np.arange(len(query)), query, label='Query', color='red', linestyle='--', linewidth=2)
-    
+
+    query_len = query.shape[0]
+    ts_len = ts.shape[0]
+
+    fig = make_subplots(rows=1, cols=2, column_widths=[0.1, 0.9], subplot_titles=("Query", "Time Series"), horizontal_spacing=0.04)
+
+    fig.add_trace(go.Scatter(x=np.arange(query_len), y=query, line=dict(color=px.colors.qualitative.Plotly[1])),
+                row=1, col=1)
+    fig.add_trace(go.Scatter(x=np.arange(ts_len), y=ts, line=dict(color=px.colors.qualitative.Plotly[0])),
+                row=1, col=2)
+
     # Plot the best match subsequences
     for idx in bestmatch_results['indices']:
-        plt.plot(np.arange(idx, idx + len(query)), ts[idx:idx + len(query)], color='green', alpha=0.7)
-    
-    # Highlight the best match subsequences with the same color as the query
-    for idx in bestmatch_results['indices']:
-        plt.plot(np.arange(idx, idx + len(query)), ts[idx:idx + len(query)], color='red', alpha=0.7)
-    
-    plt.legend()
-    plt.title('Best Match Subsequences')
-    plt.xlabel('Time')
-    plt.ylabel('Value')
-    plt.show()
+        fig.add_trace(go.Scatter(x=np.arange(idx, idx + query_len), y=ts[idx:idx + query_len],
+                                 line=dict(color=px.colors.qualitative.Plotly[1], dash='dash')),
+                      row=1, col=2)
+
+    fig.update_annotations(font=dict(size=24, color='black'))
+
+    fig.update_xaxes(showgrid=False,
+                     linecolor='#000',
+                     ticks="outside",
+                     tickfont=dict(size=18, color='black'),
+                     linewidth=1,
+                     tickwidth=1,
+                     mirror=True)
+    fig.update_yaxes(showgrid=False,
+                     linecolor='#000',
+                     ticks="outside",
+                     tickfont=dict(size=18, color='black'),
+                     zeroline=False,
+                     linewidth=1,
+                     tickwidth=1,
+                     mirror=True)
+
+    fig.update_layout(plot_bgcolor="rgba(0,0,0,0)",
+                      paper_bgcolor='rgba(0,0,0,0)',
+                      showlegend=False,
+                      title_x=0.5)
+
+    fig.show(renderer="colab")
