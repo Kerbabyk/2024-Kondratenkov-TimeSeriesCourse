@@ -184,3 +184,39 @@ def pie_chart(labels: np.ndarray, values: np.ndarray, plot_title='Pie chart') ->
                       )
 
     fig.show(renderer="colab")
+
+
+def plot_bestmatch_results(ts, query, bestmatch_results):
+    """
+    Plot the time series, query, and the best match subsequences found.
+
+    Parameters
+    ----------
+    ts: np.ndarray
+        The time series data.
+    query: np.ndarray
+        The query subsequence.
+    bestmatch_results: dict
+        The results from the topK_match function containing indices and distances.
+    """
+    plt.figure(figsize=(14, 6))
+    
+    # Plot the time series
+    plt.plot(ts, label='Time Series', color='blue')
+    
+    # Plot the query subsequence
+    plt.plot(np.arange(len(query)), query, label='Query', color='red', linestyle='--', linewidth=2)
+    
+    # Plot the best match subsequences
+    for idx in bestmatch_results['indices']:
+        plt.plot(np.arange(idx, idx + len(query)), ts[idx:idx + len(query)], color='green', alpha=0.7)
+    
+    # Highlight the best match subsequences with the same color as the query
+    for idx in bestmatch_results['indices']:
+        plt.plot(np.arange(idx, idx + len(query)), ts[idx:idx + len(query)], color='red', alpha=0.7)
+    
+    plt.legend()
+    plt.title('Best Match Subsequences')
+    plt.xlabel('Time')
+    plt.ylabel('Value')
+    plt.show()
