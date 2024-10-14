@@ -124,7 +124,6 @@ class NaiveBestMatchFinder(BestMatchFinder):
         Constructor of class NaiveBestMatchFinder
         """
 
-
     def perform(self, ts_data: np.ndarray, query: np.ndarray) -> dict:
         """
         Search subsequences in a time series that most closely match the query using the naive algorithm
@@ -150,8 +149,8 @@ class NaiveBestMatchFinder(BestMatchFinder):
         bsf = np.inf
 
         bestmatch = {
-            'index': [],
-            'distance': []
+            'indices': [],
+            'distances': []
         }
 
         # Normalize query if needed
@@ -172,8 +171,8 @@ class NaiveBestMatchFinder(BestMatchFinder):
         # Debugging: print the results of topK_match
         print("TopK results:", topK_results)
 
-        bestmatch['index'] = topK_results['indices']
-        bestmatch['distance'] = topK_results['distances']
+        bestmatch['indices'] = topK_results['indices']
+        bestmatch['distances'] = topK_results['distances']
 
         return bestmatch
 
