@@ -168,6 +168,10 @@ class NaiveBestMatchFinder(BestMatchFinder):
         # Find topK matches using the distance profile
         topK_results = topK_match(dist_profile, excl_zone, self.topK)
 
+        # Check if topK_results contains the expected keys
+        if 'indices' not in topK_results or 'distances' not in topK_results:
+            raise KeyError("topK_results does not contain the expected keys 'indices' and 'distances'")
+
         bestmatch['index'] = topK_results['indices']
         bestmatch['distance'] = topK_results['distances']
 
