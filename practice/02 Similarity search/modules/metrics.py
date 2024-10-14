@@ -68,7 +68,7 @@ def DTW_distance(ts1: np.ndarray, ts2: np.ndarray, r: float = 1) -> float:
     # Calculate the Sakoe-Chiba band
     for i in range(1, n + 1):
         for j in range(1, m + 1):
-            if abs(i - j) <= r:
+            if max(1, j - int(r)) <= i <= min(n, j + int(r)):
                 cost = (ts1[i - 1] - ts2[j - 1]) ** 2
                 dtw_matrix[i, j] = cost + min(dtw_matrix[i - 1, j], dtw_matrix[i, j - 1], dtw_matrix[i - 1, j - 1])
     
