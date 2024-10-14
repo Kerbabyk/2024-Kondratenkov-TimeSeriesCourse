@@ -139,7 +139,7 @@ class NaiveBestMatchFinder(BestMatchFinder):
         """
 
         query = copy.deepcopy(query)
-        if len(ts_data.shape) != 2:  # time series set
+        if (len(ts_data.shape) != 2): # time series set
             ts_data = sliding_window(ts_data, len(query))
 
         N, m = ts_data.shape
@@ -157,20 +157,16 @@ class NaiveBestMatchFinder(BestMatchFinder):
         if self.is_normalize:
             query = z_normalize(query)
 
-        # Compute DTW distances for each subsequence
+        # Compute DTW distance for each subsequence
         for i in range(N):
             subsequence = ts_data[i]
             if self.is_normalize:
                 subsequence = z_normalize(subsequence)
-            dist = DTW_distance(subsequence, query, r=self.r)
-            dist_profile[i] = dist
+            distance = DTW_distance(query, subsequence, r=self.r)
+            dist_profile[i] = distance
 
-        # Find topK matches using the distance profile
+        # Find topK matches
         topK_results = topK_match(dist_profile, excl_zone, self.topK)
-
-        # Check if topK_results contains the expected keys
-        if 'indices' not in topK_results or 'distances' not in topK_results:
-            raise KeyError("topK_results does not contain the expected keys 'indices' and 'distances'")
 
         bestmatch['index'] = topK_results['indices']
         bestmatch['distance'] = topK_results['distances']
