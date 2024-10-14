@@ -114,7 +114,7 @@ class BestMatchFinder:
 
 
 class NaiveBestMatchFinder(BestMatchFinder):
-    """
+        """
     Naive Best Match Finder
     """
 
@@ -167,6 +167,9 @@ class NaiveBestMatchFinder(BestMatchFinder):
 
         # Find topK matches
         topK_results = topK_match(dist_profile, excl_zone, self.topK)
+
+        # Debugging: print the results of topK_match
+        print("TopK results:", topK_results)
 
         bestmatch['index'] = topK_results['indices']
         bestmatch['distance'] = topK_results['distances']
