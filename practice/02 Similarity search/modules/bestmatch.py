@@ -114,7 +114,7 @@ class BestMatchFinder:
 
 
 class NaiveBestMatchFinder(BestMatchFinder):
-        """
+    """
     Naive Best Match Finder
     """
 
@@ -123,6 +123,7 @@ class NaiveBestMatchFinder(BestMatchFinder):
         """ 
         Constructor of class NaiveBestMatchFinder
         """
+
 
     def perform(self, ts_data: np.ndarray, query: np.ndarray) -> dict:
         """
