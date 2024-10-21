@@ -24,7 +24,6 @@ def brute_force(ts: np.ndarray, query: np.ndarray, is_normalize: bool = True) ->
 
     # Normalize time series and query if is_normalize is True
     if is_normalize:
-        ts = (ts - np.mean(ts)) / np.std(ts)
         query = (query - np.mean(query)) / np.std(query)
 
     # Initialize distance profile
