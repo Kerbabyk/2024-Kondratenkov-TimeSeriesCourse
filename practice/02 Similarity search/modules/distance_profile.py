@@ -1,3 +1,5 @@
+import numpy as np
+
 def brute_force(ts: np.ndarray, query: np.ndarray, is_normalize: bool = True) -> np.ndarray:
     """
     Calculate the distance profile using the brute force algorithm.
