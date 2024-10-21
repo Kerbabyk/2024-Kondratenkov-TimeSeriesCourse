@@ -28,7 +28,7 @@ def apply_exclusion_zone(array: np.ndarray, idx: int, excl_zone: int) -> np.ndar
     return array
 
 
-def topK_match(distance_profile: np.ndarray, ts: np.ndarray, query: np.ndarray, topK: int, excl_zone_frac: float) -> list:
+def topK_match(distance_profile: np.ndarray, ts: np.ndarray, query: np.ndarray, topK: int, excl_zone_frac: float) -> dict:
     """
     Find the topK most similar subsequences to the query in the time series
 
@@ -42,7 +42,7 @@ def topK_match(distance_profile: np.ndarray, ts: np.ndarray, query: np.ndarray, 
 
     Returns
     -------
-    topK_matches: list of indices of the topK most similar subsequences
+    topK_matches: dictionary with indices and distances of the topK most similar subsequences
     """
 
     m = len(query)
@@ -58,8 +58,9 @@ def topK_match(distance_profile: np.ndarray, ts: np.ndarray, query: np.ndarray, 
     
     # Находим topK индексов с наименьшими расстояниями
     topK_indices = np.argsort(distance_profile)[:topK]
+    topK_distances = distance_profile[topK_indices]
     
-    return topK_indices.tolist()
+    return {'indices': topK_indices.tolist(), 'distances': topK_distances.tolist()}
 
 
 class BestMatchFinder:
