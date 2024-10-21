@@ -1,8 +1,6 @@
 import numpy as np
-
 from modules.utils import z_normalize
 from modules.metrics import ED_distance, norm_ED_distance
-
 
 def brute_force(ts: np.ndarray, query: np.ndarray, is_normalize: bool = True) -> np.ndarray:
     """
@@ -21,8 +19,8 @@ def brute_force(ts: np.ndarray, query: np.ndarray, is_normalize: bool = True) ->
 
     n = len(ts)
     m = len(query)
-    N = n-m+1
-    distance_profile = np.zeros(n - m + 1)
+    N = n - m + 1
+    distance_profile = np.zeros(N)
     
     if is_normalize:
         ts = z_normalize(ts)
