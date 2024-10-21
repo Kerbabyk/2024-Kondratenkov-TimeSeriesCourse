@@ -51,10 +51,9 @@ def topK_match(distance_profile: np.ndarray, ts: np.ndarray, query: np.ndarray, 
     
     # Исключаем тривиальные совпадения
     for i in range(N):
-        if i < excl_zone:
-            distance_profile[i] = np.inf
-        else:
-            distance_profile[max(0, i - excl_zone):min(N, i + excl_zone)] = np.inf
+        start = max(0, i - excl_zone)
+        end = min(N, i + excl_zone + 1)
+        distance_profile[start:end] = np.inf
     
     # Находим topK индексов с наименьшими расстояниями
     topK_indices = np.argsort(distance_profile)[:topK]
