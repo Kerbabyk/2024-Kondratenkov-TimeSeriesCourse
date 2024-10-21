@@ -23,13 +23,21 @@ def brute_force(ts: np.ndarray, query: np.ndarray, is_normalize: bool = True) ->
     distance_profile = np.zeros(N)
     
     if is_normalize:
-        ts_normalized = z_normalize(ts)
         query_normalized = z_normalize(query)
     else:
-        ts_normalized = ts
         query_normalized = query
     
     for i in range(N):
-        distance_profile[i] = norm_ED_distance(ts_normalized[i:i+m], query_normalized)
+        if is_normalize:
+            subsequence_normalized = z_normalize(ts[i:i+m])
+        else:
+            subsequence_normalized = ts[i:i+m]
+        
+        distance_profile[i] = norm_ED_distance(subsequence_normalized, query_normalized)
+        
+        if distance_profile[i] == 0.0:
+            print(f"Zero distance at index {i}:")
+            print("Subsequence:", subsequence_normalized)
+            print("Query:", query_normalized)
     
     return distance_profile
