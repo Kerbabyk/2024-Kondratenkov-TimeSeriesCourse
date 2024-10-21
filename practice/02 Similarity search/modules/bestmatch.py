@@ -28,43 +28,38 @@ def apply_exclusion_zone(array: np.ndarray, idx: int, excl_zone: int) -> np.ndar
     return array
 
 
-def topK_match(dist_profile: np.ndarray, excl_zone: int, topK: int = 3, max_distance: float = np.inf) -> dict:
+def topK_match(distance_profile: np.ndarray, ts: np.ndarray, query: np.ndarray, topK: int, excl_zone_frac: float) -> list:
     """
-    Search the topK match subsequences based on distance profile
-    
+    Find the topK most similar subsequences to the query in the time series
+
     Parameters
     ----------
-    dist_profile: distances between query and subsequences of time series
-    excl_zone: size of the exclusion zone
-    topK: count of the best match subsequences
-    max_distance: maximum distance between query and a subsequence `S` for `S` to be considered a match
-    
+    distance_profile: distance profile between query and time series
+    ts: time series
+    query: query, shorter than time series
+    topK: number of top matches to find
+    excl_zone_frac: fraction of the query length to use as the exclusion zone
+
     Returns
     -------
-    topK_match_results: dictionary containing results of algorithm
+    topK_matches: list of indices of the topK most similar subsequences
     """
 
-    topK_match_results = {
-        'indices': [],
-        'distances': []
-    } 
-
-    dist_profile_len = len(dist_profile)
-    dist_profile = np.copy(dist_profile).astype(float)
-
-    for k in range(topK):
-        min_idx = np.argmin(dist_profile)
-        min_dist = dist_profile[min_idx]
-
-        if (np.isnan(min_dist)) or (np.isinf(min_dist)) or (min_dist > max_distance):
-            break
-
-        dist_profile = apply_exclusion_zone(dist_profile, min_idx, excl_zone)
-
-        topK_match_results['indices'].append(min_idx)
-        topK_match_results['distances'].append(min_dist)
-
-    return topK_match_results
+    m = len(query)
+    excl_zone = int(np.ceil(excl_zone_frac * m))
+    N = len(distance_profile)
+    
+    # Исключаем тривиальные совпадения
+    for i in range(N):
+        if i < excl_zone:
+            distance_profile[i] = np.inf
+        else:
+            distance_profile[max(0, i - excl_zone):min(N, i + excl_zone)] = np.inf
+    
+    # Находим topK индексов с наименьшими расстояниями
+    topK_indices = np.argsort(distance_profile)[:topK]
+    
+    return topK_indices.tolist()
 
 
 class BestMatchFinder:
