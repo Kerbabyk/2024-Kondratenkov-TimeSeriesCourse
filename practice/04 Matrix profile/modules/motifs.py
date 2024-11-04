@@ -19,6 +19,7 @@ def top_k_motifs(matrix_profile: dict, top_k: int = 3) -> dict:
 
     motifs_idx = []
     motifs_dist = []
+    unique_indices = set()  # Множество для хранения уникальных индексов
 
     mp = matrix_profile.get('mp', np.array([]))
     mpi = matrix_profile.get('mpi', np.array([]))
@@ -33,7 +34,8 @@ def top_k_motifs(matrix_profile: dict, top_k: int = 3) -> dict:
     for idx in sorted_indices:
         if len(motifs_idx) >= top_k:
             break
-        if idx not in motifs_idx:
+        if idx not in unique_indices:
+            unique_indices.add(idx)
             motifs_idx.append((idx, idx))  # Добавляем индекс дважды, чтобы соответствовать формату
             motifs_dist.append(mp[idx])
             # Применяем зону исключения
