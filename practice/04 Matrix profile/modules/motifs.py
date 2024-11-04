@@ -24,6 +24,7 @@ def top_k_motifs(matrix_profile: dict, top_k: int = 3) -> dict:
     mp = matrix_profile.get('mp', np.array([]))
     mpi = matrix_profile.get('mpi', np.array([]))
     excl_zone = matrix_profile.get('excl_zone', 0)
+    n = len(mp)
 
     if mp.size == 0 or mpi.size == 0:
         raise KeyError("Matrix profile structure must contain 'mp' and 'mpi' keys.")
@@ -34,7 +35,7 @@ def top_k_motifs(matrix_profile: dict, top_k: int = 3) -> dict:
     for idx in sorted_indices:
         if len(motifs_idx) >= top_k:
             break
-        if idx not in unique_indices:
+        if idx not in unique_indices and 0 <= idx < n:
             unique_indices.add(idx)
             motifs_idx.append((idx, idx))  # Добавляем индекс дважды, чтобы соответствовать формату
             motifs_dist.append(mp[idx])
