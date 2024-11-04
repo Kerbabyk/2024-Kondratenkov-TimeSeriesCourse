@@ -25,10 +25,16 @@ def top_k_motifs(matrix_profile: dict, top_k: int = 3) -> dict:
     m = matrix_profile['m']
     excl_zone = matrix_profile['excl_zone']
 
+    # Sort indices by matrix profile values
     sorted_indices = np.argsort(mp)
 
-    filtered_indices = apply_exclusion_zone(sorted_indices, excl_zone, mp)
+    # Apply exclusion zone
+    filtered_indices = []
+    for idx in sorted_indices:
+        if all(abs(idx - other_idx) > excl_zone for other_idx in filtered_indices):
+            filtered_indices.append(idx)
 
+    # Find top-k motifs
     for idx in filtered_indices[:top_k]:
         left_idx = idx
         right_idx = mpi[idx]
