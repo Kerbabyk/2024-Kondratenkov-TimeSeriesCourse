@@ -34,7 +34,7 @@ def top_k_motifs(matrix_profile: dict, top_k: int = 3) -> dict:
         if len(motifs_idx) >= top_k:
             break
         if idx not in motifs_idx:
-            motifs_idx.append(idx)
+            motifs_idx.append((idx, idx))  # Добавляем индекс дважды, чтобы соответствовать формату
             motifs_dist.append(mp[idx])
             # Применяем зону исключения
             mp = apply_exclusion_zone(mp, idx, excl_zone, np.inf)
