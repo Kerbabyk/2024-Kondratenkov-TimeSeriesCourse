@@ -21,25 +21,19 @@ def top_k_motifs(matrix_profile: dict, top_k: int = 3) -> dict:
     motifs_dist = []
 
     mp = matrix_profile['mp']
-    mpi = matrix_profile['mpi']
-    m = matrix_profile['m']
-    excl_zone = matrix_profile['excl_zone']
+    pi = matrix_profile['pi']
 
-    # Sort indices by matrix profile values
+    # Сортируем индексы по значению матричного профиля
     sorted_indices = np.argsort(mp)
 
-    # Apply exclusion zone
-    filtered_indices = []
     for idx in sorted_indices:
-        if all(abs(idx - other_idx) > excl_zone for other_idx in filtered_indices):
-            filtered_indices.append(idx)
-
-    # Find top-k motifs
-    for idx in filtered_indices[:top_k]:
-        left_idx = idx
-        right_idx = mpi[idx]
-        motifs_idx.append((left_idx, right_idx))
-        motifs_dist.append(mp[idx])
+        if len(motifs_idx) >= top_k:
+            break
+        if idx not in motifs_idx:
+            motifs_idx.append(idx)
+            motifs_dist.append(mp[idx])
+            # Применяем зону исключения
+            mp = apply_exclusion_zone(mp, idx, excl_zone, np.inf)
 
     return {
         "indices": motifs_idx,
