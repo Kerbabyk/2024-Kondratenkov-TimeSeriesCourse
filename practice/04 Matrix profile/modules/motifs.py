@@ -20,8 +20,12 @@ def top_k_motifs(matrix_profile: dict, top_k: int = 3) -> dict:
     motifs_idx = []
     motifs_dist = []
 
-    mp = matrix_profile['mp']
-    pi = matrix_profile['pi']
+    mp = matrix_profile.get('mp', [])
+    mpi = matrix_profile.get('mpi', [])
+    excl_zone = matrix_profile.get('excl_zone', 0)
+
+    if not mp or not mpi:
+        raise KeyError("Matrix profile structure must contain 'mp' and 'mpi' keys.")
 
     # Сортируем индексы по значению матричного профиля
     sorted_indices = np.argsort(mp)
