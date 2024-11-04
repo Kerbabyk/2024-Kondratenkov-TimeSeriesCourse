@@ -27,7 +27,7 @@ def top_k_motifs(matrix_profile: dict, top_k: int = 3) -> dict:
 
     sorted_indices = np.argsort(mp)
 
-    filtered_indices = apply_exclusion_zone(sorted_indices, excl_zone)
+    filtered_indices = apply_exclusion_zone(sorted_indices, excl_zone, mp)
 
     for idx in filtered_indices[:top_k]:
         left_idx = idx
