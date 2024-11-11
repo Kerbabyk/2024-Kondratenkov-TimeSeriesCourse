@@ -23,6 +23,21 @@ def top_k_discords(matrix_profile: dict, top_k: int = 3) -> dict:
 
     # INSERT YOUR CODE
 
+    mp = matrix_profile['mp']
+    mpi = matrix_profile['mpi']
+    excl_zone = matrix_profile['excl_zone']
+
+    sorted_indices = np.argsort(mp)[::-1]
+
+    for idx in sorted_indices:
+        if len(discords_idx) >= top_k:
+            break
+        if mp[idx] != np.inf:
+            
+            discords_idx.append(idx)
+            discords_dist.append(mp[idx])
+            mp = apply_exclusion_zone(mp, idx, excl_zone, np.inf)
+
     return {
         'indices' : discords_idx,
         'distances' : discords_dist,
