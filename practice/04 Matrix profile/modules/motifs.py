@@ -19,30 +19,29 @@ def top_k_motifs(matrix_profile: dict, top_k: int = 3) -> dict:
 
     motifs_idx = []
     motifs_dist = []
-    unique_indices = set()  # Множество для хранения уникальных индексов
 
-    mp = matrix_profile.get('mp', np.array([]))
-    mpi = matrix_profile.get('mpi', np.array([]))
-    excl_zone = matrix_profile.get('excl_zone', 0)
-    n = len(mp)
+    motifs_idx = []
+    motifs_dist = []
 
-    if mp.size == 0 or mpi.size == 0:
-        raise KeyError("Matrix profile structure must contain 'mp' and 'mpi' keys.")
+    mp = matrix_profile['mp']
+    mpi = matrix_profile['mpi']
+    excl_zone = matrix_profile['excl_zone']
 
-    # Сортируем индексы по значению матричного профиля
-    sorted_indices = np.argsort(mp)
+    sorted_indices = np.argsort(mp)[::-1]
 
     for idx in sorted_indices:
         if len(motifs_idx) >= top_k:
             break
-        if idx not in unique_indices and 0 <= idx < n:
-            unique_indices.add(idx)
-            motifs_idx.append((idx, idx))  # Добавляем индекс дважды, чтобы соответствовать формату
+        if mp[idx] != np.inf:
+            zone_start = max(0, idx - excl_zone)
+            zone_stop = min(mp.shape[-1], idx + excl_zone)
+            motifs_idx.append([zone_start, zone_stop])
             motifs_dist.append(mp[idx])
-            # Применяем зону исключения
             mp = apply_exclusion_zone(mp, idx, excl_zone, np.inf)
+            
+
 
     return {
-        "indices": motifs_idx,
-        "distances": motifs_dist
-    }
+        "indices" : motifs_idx,
+        "distances" : motifs_dist
+        }
